@@ -1,18 +1,76 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Download, Youtube, Facebook, Instagram } from "lucide-react";
+import { Download, Youtube, Facebook, Instagram, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-const Hero = () => {
+interface VideoInfo {
+  title: string;
+  thumbnail: string;
+  duration: string;
+  platform: string;
+  formats: Array<{
+    quality: string;
+    format: string;
+    size: string;
+    downloadUrl: string;
+  }>;
+  audioFormats: Array<{
+    quality: string;
+    format: string;
+    size: string;
+    downloadUrl: string;
+  }>;
+}
+
+interface HeroProps {
+  onVideoProcessed: (videoInfo: VideoInfo) => void;
+}
+
+const Hero = ({ onVideoProcessed }: HeroProps) => {
   const [url, setUrl] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleDownload = () => {
-    if (!url) {
+  const handleDownload = async () => {
+    if (!url.trim()) {
       toast.error("Please paste a video URL");
       return;
     }
-    toast.success("Processing video... (Demo mode)");
+
+    // Basic URL validation
+    try {
+      new URL(url);
+    } catch {
+      toast.error("Please enter a valid URL");
+      return;
+    }
+
+    setIsProcessing(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('process-video', {
+        body: { url }
+      });
+
+      if (error) {
+        console.error('Error processing video:', error);
+        toast.error("Failed to process video. Please try again.");
+        return;
+      }
+
+      if (data?.success && data?.videoInfo) {
+        toast.success("Video processed successfully!");
+        onVideoProcessed(data.videoInfo);
+      } else {
+        toast.error("Failed to extract video information");
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -38,11 +96,21 @@ const Hero = () => {
             />
             <Button 
               onClick={handleDownload}
+              disabled={isProcessing}
               size="lg"
-              className="h-14 px-8 text-lg gap-2 bg-primary hover:bg-primary/90 transition-all"
+              className="h-14 px-8 text-lg gap-2 bg-primary hover:bg-primary/90 transition-all disabled:opacity-50"
             >
-              <Download className="h-5 w-5" />
-              Download
+              {isProcessing ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Download className="h-5 w-5" />
+                  Download
+                </>
+              )}
             </Button>
           </div>
 
