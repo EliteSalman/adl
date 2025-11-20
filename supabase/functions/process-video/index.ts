@@ -76,18 +76,6 @@ serve(async (req) => {
       const cobaltData = await cobaltResponse.json();
       console.log('Cobalt API response:', cobaltData);
 
-      // Handle Cobalt API response
-      if (cobaltData.status === 'error' || cobaltData.status === 'rate-limit') {
-        console.error('Cobalt API error:', cobaltData);
-        return new Response(
-          JSON.stringify({ 
-            error: cobaltData.text || 'Failed to process video',
-            details: 'The video service returned an error. Please try again or use a different URL.'
-          }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
       // Extract video ID for thumbnail
       let videoId = '';
       let thumbnail = 'https://via.placeholder.com/1280x720/FF385C/FFFFFF?text=Video+Thumbnail';
@@ -101,6 +89,46 @@ serve(async (req) => {
         if (videoId) {
           thumbnail = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
         }
+      }
+
+      // Handle Cobalt API response and provide fallback when the external service fails
+      if (cobaltData.status === 'error' || cobaltData.status === 'rate-limit') {
+        console.error('Cobalt API error:', cobaltData);
+
+        const fallbackVideoInfo = {
+          title: 'Demo Video (yt-dlp service unavailable)',
+          thumbnail,
+          duration: 'Unknown',
+          platform,
+          formats: [
+            {
+              quality: 'Fallback',
+              format: 'MP4',
+              size: 'Unknown',
+              downloadUrl: url,
+            },
+          ],
+          audioFormats: [
+            {
+              quality: 'Fallback Audio',
+              format: 'Audio',
+              size: 'Unknown',
+              downloadUrl: '#',
+            },
+          ],
+        };
+
+        return new Response(
+          JSON.stringify({
+            success: true,
+            fallback: true,
+            videoInfo: fallbackVideoInfo,
+            message:
+              cobaltData.text ||
+              'External video service is currently unavailable; showing demo data instead.',
+          }),
+          { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       // Build response with available formats
