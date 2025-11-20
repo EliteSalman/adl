@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 // Cobalt API endpoint (uses yt-dlp under the hood)
-const COBALT_API = 'https://api.cobalt.tools/api/json';
+const COBALT_API = 'https://api.cobalt.tools/';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -68,7 +68,7 @@ serve(async (req) => {
         body: JSON.stringify({
           url: url,
           videoQuality: '1080',
-          filenameStyle: 'basic',
+          filenamePattern: 'basic',
           downloadMode: 'auto'
         })
       });
