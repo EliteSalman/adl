@@ -143,7 +143,7 @@ const VideoResults = ({ videoInfo, onBack }: VideoResultsProps) => {
 
             <div className="mt-6 p-4 bg-primary/10 rounded-lg border border-primary/20">
               <p className="text-sm text-foreground">
-                ✅ <strong>Powered by yt-dlp:</strong> Real download links extracted using yt-dlp technology via Cobalt API.
+                ✅ <strong>Powered by yt-dlp:</strong> Real download links extracted using yt-dlp technology.
               </p>
             </div>
           </div>
