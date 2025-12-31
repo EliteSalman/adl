@@ -29,8 +29,8 @@ A fast, free online video downloader supporting YouTube, Facebook, Instagram, Ti
 
 ```bash
 # Clone the repository
-git clone <YOUR_REPOSITORY_URL>
-cd <PROJECT_NAME>
+git clone https://github.com/abirsiddiky/adl.git
+cd adl
 
 # Install dependencies
 npm install
