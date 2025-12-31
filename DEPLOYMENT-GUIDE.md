@@ -19,8 +19,8 @@ This application consists of:
 
 ### Option A: Using Git (Recommended)
 ```bash
-git clone <YOUR_REPOSITORY_URL>
-cd <PROJECT_NAME>
+git clone https://github.com/abirsiddiky/adl.git
+cd adl
 ```
 
 ### Option B: Download from Lovable
